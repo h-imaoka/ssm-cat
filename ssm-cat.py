@@ -24,7 +24,6 @@ def _check_encoding(file_path):
             if detector.done:
                 break
     detector.close()
-    #print(detector.result, end='')
     return detector.result['encoding']
 
 
@@ -96,12 +95,10 @@ def _list_commands(args):
     # build filter
     filters = []
     if args.after or args.before:
-        filters = [
-            {
-                'key': 'InvokedAfter',
-                'value': '2015-04-20T00:00:00Z'
-            }
-        ]
+        if args.after:
+            filters.append({'key': 'InvokedAfter', 'value': args.after})
+        if args.before:
+            filters.append({'key': 'InvokedBefore', 'value': args.before})
     else:
         after_time = _get_calc_iso_datetime(args.delta)
         filters.append(
@@ -136,9 +133,9 @@ def _detail_command(args):
     for i in info:
         iid = i['_ins']
         if i['_ins'] in c.keys():
-            print_green("{0}\t{1}\t{2}\t{3}".format(iid, *c[iid]))
+            print_green("{0}\t{1[0]}\t{1[1]}\t{1[2]}\t{2}".format(iid, c[iid], i['_st']))
         else:
-            print_green("{0}\t--terminated".format(iid))
+            print_green("{0}\t--terminated\t{1}".format(iid, i['_st']))
 
         for p in i['_plugins']:
             if not p['_bucket']:
@@ -162,14 +159,20 @@ def main():
     subparsers = parser.add_subparsers()
 
     parser_ls = subparsers.add_parser('ls', help='see `ls -h`')
-    parser_ls.add_argument('-a', '--after', help='after')
-    parser_ls.add_argument('-b', '--before', help='before')
+    parser_ls.add_argument(
+        '-a',
+        '--after',
+        help='InvokedAfter (YYYY-MM-DDTHH:mm:SSZ UTC only)')
+    parser_ls.add_argument(
+        '-b',
+        '--before',
+        help='InvokedBefore (YYYY-MM-DDTHH:mm:SSZ UTC only)')
     parser_ls.add_argument('-d', '--delta', help='time-delta N(d,h,m)', default='1d')
     parser_ls.set_defaults(handler=_list_commands)
 
-    parser_desc = subparsers.add_parser('desc', help='see `desc -h`')
-    parser_desc.add_argument('command', help='set command-id')
-    parser_desc.set_defaults(handler=_detail_command)
+    parser_cat = subparsers.add_parser('cat', help='see `cat -h`')
+    parser_cat.add_argument('command', help='command-id')
+    parser_cat.set_defaults(handler=_detail_command)
 
     args = parser.parse_args()
     if hasattr(args, 'handler'):
