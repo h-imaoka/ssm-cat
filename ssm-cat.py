@@ -66,10 +66,10 @@ def _get_s3_contents(path):
         with fs.open(path) as rf:
             if not os.path.exists(os.path.dirname(local_fp)):
                 os.makedirs(os.path.dirname(local_fp))
-                rdata = ""
-                with open(local_fp, "wb") as lf:
-                    rdata = rf.read()
-                    lf.write(rdata)
+            rdata = ""
+            with open(local_fp, "wb") as lf:
+                rdata = rf.read()
+                lf.write(rdata)
 
     enc = _check_encoding(local_fp)
     with codecs.open(local_fp, "rb", enc) as f:
