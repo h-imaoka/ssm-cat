@@ -7,6 +7,7 @@ import os
 import datetime
 import pytz
 import argparse
+import sys
 import codecs
 import pprint as pp
 from diskcache import Cache
@@ -14,6 +15,7 @@ from functools import partial
 S3_CACHE_DIR = '.ssm-cat/s3'
 DISK_CACHE_DIR = '.ssm-cat/diskcache'
 from chardet.universaldetector import UniversalDetector
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 
 def _check_encoding(file_path):
